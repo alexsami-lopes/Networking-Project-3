@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clock Interface</title>
+    <script>
+        function updateClockTimes() {
+            fetch('/time')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('clock1').innerText = `Clock 1: ${data.clock1}`;
+                    document.getElementById('clock2').innerText = `Clock 2: ${data.clock2}`;
+                    document.getElementById('clock3').innerText = `Clock 3: ${data.clock3}`;
+                });
+        }
+
+        function setDrift() {
+            const drift = parseInt(document.getElementById('drift').value, 10);
+            fetch('/set_drift', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ drift: drift })
+            }).then(response => response.text())
+              .then(() => updateClockTimes());
+        }
+
+        function syncClocks() {
+            fetch('/sync', {
+                method: 'POST'
+            }).then(response => response.text())
+              .then(() => updateClockTimes());
+        }
+
+        setInterval(updateClockTimes, 1000);  // Atualiza a cada segundo
+    </script>
+</head>
+<body>
+    <h1>Clock 1 Interface</h1>
+    <p id="clock1">Clock 1: 00:00:00</p>
+    <p id="clock2">Clock 2: 00:00:00</p>
+    <p id="clock3">Clock 3: 00:00:00</p>
+    <label for="drift">Drift (s):</label>
+    <input id="drift" type="number" value="0" min="-10" max="10">
+    <button onclick="setDrift()">Set Drift</button>
+    <button onclick="syncClocks()">Sync Clocks</button>
+</body>
+</html>
